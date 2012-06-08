@@ -3,7 +3,7 @@ module EMBox
   module ClientConnection
     include EventMachine::Protocols::ObjectProtocol
 
-    attr_accessor :receiver, :status
+    attr_accessor :receiver, :status, :server
 
     def serializer
       JSON
@@ -13,6 +13,13 @@ module EMBox
       puts 'client connected'
       status = :connected
       puts "client pid #{get_pid}"
+    end
+    
+    def status= status
+      @status = status
+      if server.agents.map(&:connection).all? {|c| c.status == :ready }
+        server.call_start_callback
+      end
     end
 
     def receive_object json

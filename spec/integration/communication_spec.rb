@@ -10,7 +10,7 @@ describe "Communication" do
 
 
   it "server should receive an echo" do
-    @agent_on_server.should_receive(:echo).with('client: hello from server')
+    @agent_on_server.should_receive(:received_message).with('client: hello from server')
     @server.start do
       @agent_on_server.says('hello from server')
     end

@@ -7,6 +7,8 @@ module Example
 
     def echo text
       puts "received #{text} from client"
+      received_message text
+      EM.stop
     end
 
   end
