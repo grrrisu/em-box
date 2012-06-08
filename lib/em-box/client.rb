@@ -1,5 +1,5 @@
 require_relative 'server_connection'
-require_relative '../sandbox/sandbox'
+#require_relative '../sandbox/sandbox'
 
 module EMBox
 
@@ -19,7 +19,7 @@ module EMBox
           @connection = EM::attach($stdin, ServerConnection)
           @connection.client = self
 
-          EM.add_timer(5) do
+          EM.add_timer(2) do
             EM.stop
           end
         rescue Exception => e
