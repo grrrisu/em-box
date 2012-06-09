@@ -23,6 +23,7 @@ JSON is used for messages
 
 a message, that does
 
+```javascript
 {
   status: 'ready'
 }
@@ -37,9 +38,10 @@ a message, that does
   message: 'action',
   arguments: [arg1,arg2]
 }
-
+```
 a message that expects a return value
 
+```javascript
 {
   message: 'action',
   arguments: [arg1,arg2],
@@ -50,7 +52,7 @@ a message that expects a return value
   return: uuid,
   value: 'return value'
 }
-
+```
 Credits
 -------
 
