@@ -27,9 +27,7 @@ module EMBox
 
     def receive_object json
       $stderr.puts "server sent #{json}"
-      
       client.send json['message'], *json['arguments']
-      #send_object :back => json
     end
 
   end

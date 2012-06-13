@@ -27,7 +27,7 @@ module EMBox
     def start &block
       EM.run do
         @agents.each do |agent|
-          cmd = "#{@ruby} -rrubygems -rjson -reventmachine -r#{agent.client_file} -e '#{agent.client_class}.new' -T3"
+          cmd = "#{@ruby} -rrubygems -rjson -reventmachine -r#{agent.client_file} -e '#{agent.client_class}.new'"
           agent.connection = EM.popen(cmd, ClientConnection)
           agent.connection.server = self
           

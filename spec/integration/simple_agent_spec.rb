@@ -8,10 +8,9 @@ describe "SimpleAgent" do
     @server = EMBox::Server.new [@agent_on_server]
   end
 
-
-  it "server should receive an echo" do
-    @agent_on_server.should_receive(:look_around).twice
-    @agent_on_server.should_receive(:move_to).with([1,0]).twice
+  it "server should receive client commands" do
+    @agent_on_server.should_receive(:look_around).twice.and_return([{x:0,y:0,population:450}])
+    @agent_on_server.should_receive(:move_to).with([1,0]).twice.and_return([1,0])
     @server.start do
       @agent_on_server.start_game
     end
