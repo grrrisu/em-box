@@ -21,6 +21,10 @@ module EMBox
         server.call_start_callback
       end
     end
+    
+    def send_status status
+      send_object :status => status
+    end
 
     def receive_object json
       puts "client sent #{json}"

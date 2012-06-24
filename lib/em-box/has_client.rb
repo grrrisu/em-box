@@ -8,11 +8,11 @@ module EMBox
 
     module InstanceMethods
     
-      attr_reader :client_class, :client_file
+      attr_reader :agent_class, :agent_file
 
       def initialize options
-        @client_class = options[:client_class]
-        @client_file  = options[:client_file]
+        @agent_class = options[:agent_class]
+        @agent_file  = options[:agent_file]
       end
 
     end

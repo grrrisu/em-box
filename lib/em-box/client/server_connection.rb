@@ -20,14 +20,10 @@ module EMBox
     def send_message message, *args
       send_object :message => message, :arguments => args
     end
-    
-    def method_missing message, *args, &block
-      send_message message, *args
-    end
 
-    def receive_object json
-      $stderr.puts "server sent #{json}"
-      client.send json['message'], *json['arguments']
+    def receive_object object
+      $stderr.puts "server sent #{object}"
+      client.receive_message object
     end
 
   end

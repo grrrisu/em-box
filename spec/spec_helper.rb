@@ -10,6 +10,6 @@ RSpec.configure do |config|
 end
 
 # require helper files
-Dir["#{File.dirname(__FILE__)}/example/*.rb"].uniq.each do |file|
+Dir["#{File.dirname(__FILE__)}/example/**/*.rb"].uniq.each do |file|
   require file
 end
