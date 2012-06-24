@@ -13,12 +13,12 @@ module EMBox
         #$stderr.puts agent.move_to 1, 0
       end
       
-      def says text
-        echo("client: #{text}")
+      def send method, *args, &block
+        __send__(method, *args, &block)
       end
     
       def method_missing method, *args, &block
-        $stderr.puts method, args
+        $stderr.puts "agent executes #{method} with #{args.join(',')}"
         @client.send_message self, method, *args, &block
       end
     

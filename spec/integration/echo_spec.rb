@@ -30,9 +30,10 @@ describe "Echo", :focus => true do
     end
 
     it "server should receive an echo" do
-      @agent_on_server.should_receive(:received_message).with('client is thinking', 'sever echo: client is thinking')
+      @agent_on_server.should_receive(:received_message).with('client is thinking').once
+      @agent_on_server.should_receive(:received_message).with('server echo: client is thinking').once
       @server.start do
-        broadcast :start
+        @server.broadcast :start
       end
     end
 

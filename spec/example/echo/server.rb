@@ -17,7 +17,7 @@ module Example
       def echo text
         puts "received #{text} from client"
         received_message text
-        return "server echo: #{text}"
+        connection.return_to_client "server echo: #{text}"
       end
 
     end

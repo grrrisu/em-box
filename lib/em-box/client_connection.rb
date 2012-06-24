@@ -25,6 +25,10 @@ module EMBox
     def send_status status
       send_object :status => status
     end
+    
+    def return_to_client *args
+      send_object :return_value => args
+    end
 
     def receive_object json
       puts "client sent #{json}"
