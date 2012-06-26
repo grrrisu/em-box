@@ -22,7 +22,7 @@ module EMBox
       
       def receive_message object
         if object['return_value']
-          $stderr.puts "client received return value #{object['return_value']}"
+          #$stderr.puts "client #{object_id}: received return value #{object['return_value']}"
           @fiber.resume *object['return_value']
         else
           super

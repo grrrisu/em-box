@@ -10,7 +10,7 @@ module EMBox
     end
 
     def post_init
-      $stderr.puts "preparing client"
+      #$stderr.puts "client ready"
       #raise ArgumentError, 'just a test error'
       #Sandbox.seal(500, 50)
       # require agent code
@@ -22,7 +22,7 @@ module EMBox
     end
 
     def receive_object object
-      $stderr.puts "server sent #{object}"
+      $stderr.puts "client #{client.object_id}: server sent #{object}"
       client.receive_message object
     end
 

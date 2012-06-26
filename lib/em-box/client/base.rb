@@ -11,12 +11,12 @@ module EMBox
       attr_reader :agent, :connection
 
       def initialize agent_class, agent_file
-        $stderr.puts "agent #{self.class} initialized"
+        #$stderr.puts "client #{object_id}: agent #{self.class} initialized"
         run(agent_class, agent_file)
       end
 
       def run(agent_class, agent_file)
-        $stderr.puts 'starting client'
+        #$stderr.puts "running client #{object_id}"
         EM.run do
           begin
             @connection = EM::attach($stdin, ServerConnection)
@@ -24,11 +24,11 @@ module EMBox
             require agent_file # TODO may just pass the code
             @agent = constantize(agent_class).new(self)
             
-            EM.add_timer(2) do
+            EM.add_timer(5) do
               EM.stop
             end
           rescue Exception => e
-            $stderr.puts e.message
+            $stderr.puts "client #{object_id}: #{e.message}"
             @connection.send_object :exception => e.message
             EM.stop
           end
@@ -38,7 +38,7 @@ module EMBox
       def start
         start_agent
       rescue Exception => e
-        $stderr.puts e.message
+        $stderr.puts "client #{object_id}: #{e.message}"
         $stderr.puts *e.backtrace.join("\n")
       end
       
