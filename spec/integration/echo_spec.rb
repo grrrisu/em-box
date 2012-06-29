@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-describe "Echo", :focus => true do
+describe "Echo" do
   
   before :each do
     @agent_on_server = Example::Echo::Server.new(:agent_class => 'Example::Echo::Agent',

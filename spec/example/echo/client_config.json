@@ -1,0 +1,8 @@
+{
+    "sandbox": {
+        "safe_level": 3,
+        "cpu_time": 5,
+        "memory": 20,
+        "subprocesses": 0
+    }
+}

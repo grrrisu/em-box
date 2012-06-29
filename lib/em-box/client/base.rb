@@ -10,8 +10,9 @@ module EMBox
       
       attr_reader :agent, :connection
 
-      def initialize agent_class, agent_file
+      def initialize agent_class, agent_file, config_file = nil
         #$stderr.puts "client #{object_id}: agent #{self.class} initialized"
+        @sandbox = Sandbox::Base.new(config_file)
         run(agent_class, agent_file)
       end
 
@@ -36,6 +37,7 @@ module EMBox
       end
       
       def start
+        @sandbox.seal
         start_agent
       rescue Exception => e
         $stderr.puts "client #{object_id}: #{e.message}"
