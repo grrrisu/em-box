@@ -8,7 +8,7 @@ require_relative '../em_box'
 module EMBox
 
   class Server
-    
+
     attr_reader :agents
 
     def initialize agents = [], options = {}
@@ -20,13 +20,13 @@ module EMBox
     def add_agent agent
       @agents << agent
     end
-    
+
     def broadcast status
       @agents.each do |agent|
         agent.connection.send_status status
       end
     end
-    
+
     def call_start_callback
       @start_callback.call
     end
@@ -39,11 +39,16 @@ module EMBox
           puts cmd
           agent.connection = EM.popen(cmd, ClientConnection)
           agent.connection.server = self
-          
+
           EM::add_timer(2) do
             unless agent.connection.status == :ready
               agent.connection.close
             end
+          end
+
+          EM::add_timer(20) do
+            puts "20 sec passed closing connection to agent"
+            agent.connection.close
           end
         end
         @start_callback = block
