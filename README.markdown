@@ -1,6 +1,8 @@
 README
 ======
 
+[![Build Status](https://secure.travis-ci.org/grrrisu/intruders.png?branch=master)](http://travis-ci.org/grrrisu/intruders)
+
 Basics
 ------
 
