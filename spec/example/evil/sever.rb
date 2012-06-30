@@ -3,10 +3,10 @@ module Example
     class Server
       include EMBox::HasConnection
       include EMBox::HasClient
+      
+      delegates_to_client :execute_method
 
-      def execute_method method
-        puts "sever execute method #{method}"
-        result = connection.execute_method method
+      def result result
         puts "result: #{result}"
         received_message result
         EM.stop

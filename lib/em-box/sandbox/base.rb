@@ -17,7 +17,7 @@ module EMBox
       end
       
       def seal
-        $stderr.puts 'before safe level'
+        $stderr.puts 'sealing sandbox...'
         
         # RAM limit
         Process.setrlimit(Process::RLIMIT_AS,  config['memory']*1024*1024) # no effect on OSX but on Linux
@@ -26,7 +26,21 @@ module EMBox
         # number of processes for the user
         Process.setrlimit(Process::RLIMIT_NPROC, config['subprocesses'])
         
+        remove_globals
+        
         $SAFE = config['safe_level']
+      end
+      
+      def remove_globals
+        # trusted globals
+        # $stdin, $stdout, $stderr
+        # $0, $*, $?, $$, $~, $1, $&, $+, $`, $', $!, $@
+        
+        # LOAD PATH
+        $:.clear
+        $LOAD_PATH.clear
+        
+        ENV.clear
       end
       
     end

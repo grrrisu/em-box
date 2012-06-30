@@ -3,13 +3,13 @@ module Example
     class Agent < EMBox::Client::Agent
 
       # used for test without return value
-      def execute_code method
+      def execute_method method
         $stderr.puts "client executes #{method}"
-        __send__ method
+        result __send__(method)
       end
 
       def say_hello
-        puts 'hello'
+        'hello'
       end
 
       def eat_cpu
@@ -25,11 +25,19 @@ module Example
       end
 
       def read_env
-        ENV.inspect
+        ::ENV.inspect
+      end
+      
+      def read_load_path
+        $LOAD_PATH
+      end
+      
+      def read_load_path2
+        $:
       end
 
       def steal_passwords
-        File.read '/etc/passwd'
+        ::File.read '/etc/passwd'
       end
 
       def kill_process
@@ -53,12 +61,13 @@ module Example
       end
 
       def pollute_namespace
-        Float.class_eval "def to_s; 'har har'; end"
+        ::Float.class_eval "def to_s; 'har har'; end"
         "#{2.0}"
       end
 
       def require_std_lib
-        require 'net/http'
+        ::Object.new.send :require, 'net/http'
+        #::Kernel.require 'net/http'
       end
 
       def access_stdin
@@ -69,12 +78,6 @@ module Example
         EventMachine::run {
           EventMachine::connect "www.goole.com", 80
         }
-      end
-
-      # used for test with return value
-      def think
-        answer = echo "client is thinking"
-        echo answer
       end
 
     end

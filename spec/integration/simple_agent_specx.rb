@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-describe "SimpleAgent" do
+describe "SimpleAgent", :wip => true do
 
   before :each do
     @agent_on_server = Example::SimpleAgentServer.new(:client_class => 'Example::SimpleAgentClient',

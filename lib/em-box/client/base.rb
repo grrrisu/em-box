@@ -9,17 +9,29 @@ module EMBox
     class Base
       
       attr_reader :agent, :connection
+      
+      at_exit { $stderr.puts "client exiting..." }
 
       def initialize agent_class, agent_file, config_file = nil
+        #$stderr.puts ENV.inspect
         #$stderr.puts "client #{object_id}: agent #{self.class} initialized"
         @sandbox = Sandbox::Base.new(config_file)
         run(agent_class, agent_file)
+      end
+      
+      def rescue_error
+        yield
+      rescue Exception => e
+        $stderr.puts "client #{object_id}: #{e.message}"
+        $stderr.puts *e.backtrace.join("\n")
+        @connection.send_object :exception => e.class.name, :message => e.message
+        #EM.stop
       end
 
       def run(agent_class, agent_file)
         #$stderr.puts "running client #{object_id}"
         EM.run do
-          begin
+          rescue_error do
             @connection = EM::attach($stdin, ServerConnection)
             @connection.client = self
             require agent_file # TODO may just pass the code
@@ -28,20 +40,15 @@ module EMBox
             EM.add_timer(5) do
               EM.stop
             end
-          rescue Exception => e
-            $stderr.puts "client #{object_id}: #{e.message}"
-            @connection.send_object :exception => e.message
-            EM.stop
           end
         end
       end
       
       def start
-        @sandbox.seal
-        start_agent
-      rescue Exception => e
-        $stderr.puts "client #{object_id}: #{e.message}"
-        $stderr.puts *e.backtrace.join("\n")
+        rescue_error do
+          @sandbox.seal
+          start_agent
+        end
       end
       
       def start_agent
@@ -59,10 +66,12 @@ module EMBox
       end
       
       def receive_message object
-        if status = object['status']
-          change_status(status)
-        else 
-          @agent.send object['message'], *object['arguments']
+        rescue_error do
+          if status = object['status']
+            change_status(status)
+          else
+            @agent.send object['message'], *object['arguments']
+          end
         end
       end
       
@@ -79,6 +88,8 @@ module EMBox
       def change_status(status)
         if status == 'start'
           start
+        elsif status == 'seal'
+          @sandbox.seal
         elsif status == 'stop'
           EM.stop
         end

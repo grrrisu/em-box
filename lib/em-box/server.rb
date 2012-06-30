@@ -10,6 +10,8 @@ module EMBox
   class Server
 
     attr_reader :agents
+    
+    at_exit { puts "server exiting..." }
 
     def initialize agents = [], options = {}
       @agents       = agents
@@ -30,6 +32,11 @@ module EMBox
     def call_start_callback
       @start_callback.call
     end
+    
+    def unallowed_method connection, method
+      agent = @agents.find {|a| a.connection == connection}
+      # TODO remove_agent agent
+    end
 
     def start &block
       EM.run do
@@ -46,7 +53,7 @@ module EMBox
             end
           end
 
-          EM::add_timer(20) do
+          EM::add_timer(10) do
             puts "20 sec passed closing connection to agent"
             agent.connection.close
           end

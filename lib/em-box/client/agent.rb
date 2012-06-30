@@ -18,7 +18,6 @@ module EMBox
       end
     
       def method_missing method, *args, &block
-        #$stderr.puts "client #{@client.object_id}: agent executes #{method} with #{args.join(',')}"
         @client.send_message self, method, *args, &block
       end
     
