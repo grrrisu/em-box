@@ -21,7 +21,7 @@ describe "Evil" do
   if RUBY_PLATFORM =~ /linux/
 
     it "server should receive an exception if agent tries to eat all cpu time" do
-      @agent_on_server.should_receive(:received_message).with(nil).once
+      @agent_on_server.should_receive(:receive_exception).with('', '')
       @server.start do
         @agent_on_server.connection.send_status 'seal'
         @agent_on_server.execute_method :eat_cpu
@@ -29,7 +29,8 @@ describe "Evil" do
     end
 
     it "server should receive an exception if agent tries to eat all cpu time in a subprocess" do
-      @agent_on_server.should_receive(:received_message).with(nil).once
+      @agent_on_server.should_receive(:receive_exception).with('', '')
+      @agent_on_server.should_receive(:received_message).with(anything)
       @server.start do
         @agent_on_server.connection.send_status 'seal'
         @agent_on_server.execute_method :fork_and_eat
@@ -37,7 +38,7 @@ describe "Evil" do
     end
 
     it "server should receive an exception if agent tries to eat all memory" do
-      @agent_on_server.should_receive(:received_message).with(nil).once
+      @agent_on_server.should_receive(:receive_exception).with('', '')
       @server.start do
         @agent_on_server.connection.send_status 'seal'
         @agent_on_server.execute_method :eat_memory
@@ -87,9 +88,8 @@ describe "Evil" do
   end
 
   it "agent should not be able to kill the process" do
-    @server.should_receive(:unallowed_method).with(anything,:exit)
     @agent_on_server.should_not_receive(:exit)
-    @agent_on_server.should_receive(:received_message).with(anything)
+    @agent_on_server.should_receive(:received_message).never
     @server.start do
       @agent_on_server.connection.send_status 'seal'
       @agent_on_server.execute_method :kill_process

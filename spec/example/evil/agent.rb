@@ -13,11 +13,11 @@ module Example
       end
 
       def eat_cpu
-        loop {}
+        ::Kernel.loop {}
       end
 
       def fork_and_eat
-        fork { loop {} }
+        fork { ::Kernel.loop {} }
       end
 
       def eat_memory
@@ -41,7 +41,7 @@ module Example
       end
 
       def kill_process
-        exit
+        ::Kernel.exit!
       end
 
       def send_evil_stuff
@@ -64,6 +64,11 @@ module Example
         ::Float.class_eval "def to_s; 'har har'; end"
         "#{2.0}"
       end
+      
+      def pollute_namespace_with_inline_code
+        ::Float.instance_eval "def to_s; 'har har'; end"
+        "#{2.0}"
+      end
 
       def require_std_lib
         ::Object.new.send :require, 'net/http'
@@ -78,6 +83,10 @@ module Example
         EventMachine::run {
           EventMachine::connect "www.goole.com", 80
         }
+      end
+      
+      def send_evil_method
+        exit! # this will be sent to the server
       end
 
     end
