@@ -17,7 +17,7 @@ module Example
       end
 
       def fork_and_eat
-        fork { ::Kernel.loop {} }
+        ::Kernel.fork { ::Kernel.loop {} }
       end
 
       def eat_memory
