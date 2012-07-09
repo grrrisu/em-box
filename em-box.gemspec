@@ -5,12 +5,12 @@
 
 Gem::Specification.new do |s|
   s.name = "em-box"
-  s.version = ""
+  s.version = "0.0.1alpha"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Alessandro Di Maria"]
   s.date = "2012-07-03"
-  s.description = "TODO: longer description of your gem"
+  s.description = "sandbox for agents connected through a pipe as clients with a server"
   s.email = "adm@m42.ch"
   s.extra_rdoc_files = [
     "LICENSE.txt",
@@ -57,7 +57,7 @@ Gem::Specification.new do |s|
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
   s.rubygems_version = "1.8.24"
-  s.summary = "TODO: one-line summary of your gem"
+  s.summary = "sandbox for agents acting as clients"
 
   if s.respond_to? :specification_version then
     s.specification_version = 3

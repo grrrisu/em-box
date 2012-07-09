@@ -18,8 +18,8 @@ Jeweler::Tasks.new do |gem|
   gem.name = "em-box"
   gem.homepage = "http://github.com/grrrisu/em-box"
   gem.license = "MIT"
-  gem.summary = %Q{TODO: one-line summary of your gem}
-  gem.description = %Q{TODO: longer description of your gem}
+  gem.summary = %Q{sandbox for agents acting as clients}
+  gem.description = %Q{event machine based sandbox for agents connected through a pipe as clients to a server}
   gem.email = "adm@m42.ch"
   gem.authors = ["Alessandro Di Maria"]
   # dependencies defined in Gemfile
