@@ -3,14 +3,13 @@ require 'fiber'
 require_relative 'base'
 
 require_relative 'server_connection'
-#require_relative '../sandbox/sandbox'
 
 module EMBox
-  
+
   module Client
 
     class SynchronizedClient < Base
-      
+
       attr_reader :fiber
 
       def start
@@ -19,7 +18,7 @@ module EMBox
         end
         @fiber.resume
       end
-      
+
       def receive_message object
         if object['return_value']
           #$stderr.puts "client #{object_id}: received return value #{object['return_value']}"
@@ -28,7 +27,7 @@ module EMBox
           super
         end
       end
-      
+
     protected
 
       def send_to_connection method, *args
@@ -37,7 +36,7 @@ module EMBox
       end
 
     end
-  
+
   end
 
 end
