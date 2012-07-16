@@ -9,56 +9,35 @@ module EMBox
 
   class Server
 
-    attr_reader :agents
-    
     at_exit { puts "server exiting..." }
 
-    def initialize agents = [], options = {}
-      @agents       = agents
+    def initialize options = {}
       @client_class = options[:client_class] || EMBox::Client::Base
       @ruby         = options[:ruby] || File.join(RbConfig::CONFIG['bindir'], RbConfig::CONFIG['ruby_install_name'])
     end
 
-    def add_agent agent
-      @agents << agent
-    end
-
-    def broadcast status
-      @agents.each do |agent|
-        agent.connection.send_status status
+    def start &block
+      EM.run do
+        yield self
       end
     end
 
-    def call_start_callback
-      @start_callback.call
-    end
-    
-    def unallowed_method connection, method
-      agent = @agents.find {|a| a.connection == connection}
-      # TODO remove_agent agent
+    def call_start_callback agent
+      @start_callback.call agent
     end
 
-    def start &block
-      EM.run do
-        @agents.each do |agent|
-          em_lib = File.expand_path(File.dirname(__FILE__) + '/../em_box.rb')
-          cmd    = "#{@ruby} -rrubygems -rjson -reventmachine -r#{em_lib} -e '#{@client_class}.new(\"#{agent.agent_class}\", \"#{agent.agent_file}\")'"
-          puts cmd
-          agent.connection = EM.popen(cmd, ClientConnection)
-          agent.connection.server = self
+    # agent includes HasClient
+    def start_agent agent, &block
+      em_lib = File.expand_path(File.dirname(__FILE__) + '/../em_box.rb')
+      cmd    = "#{@ruby} -rrubygems -rjson -reventmachine -r#{em_lib} -e '#{@client_class}.new(\"#{agent.agent_class}\", \"#{agent.agent_file}\")'"
+      agent.connection = EM.popen(cmd, ClientConnection)
+      agent.server     = self
+      @start_callback  = block if block_given?
 
-          EM::add_timer(2) do
-            unless agent.connection.status == :ready
-              agent.connection.close
-            end
-          end
-
-          EM::add_timer(10) do
-            puts "20 sec passed closing connection to agent"
-            agent.connection.close
-          end
+      EM::add_timer(2) do
+        unless agent.connection.status == :ready
+          agent.connection.close_connection
         end
-        @start_callback = block
       end
     end
 

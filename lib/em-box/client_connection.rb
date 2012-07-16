@@ -4,7 +4,7 @@ module EMBox
     include EventMachine::Protocols::ObjectProtocol
 
     attr_accessor :receiver, :status, :server
-    
+
     at_exit { puts "cc server exiting..." }
 
     def serializer
@@ -16,18 +16,16 @@ module EMBox
       status = :connected
       puts "client pid #{get_pid}"
     end
-    
+
     def status= status
       @status = status
-      if server.agents.map(&:connection).all? {|c| c.status == :ready }
-        server.call_start_callback
-      end
+      receiver.status_changed(@status)
     end
-    
+
     def send_status status
       send_object :status => status
     end
-    
+
     def return_to_client *args
       send_object :return_value => args
     end
@@ -40,23 +38,22 @@ module EMBox
         puts "client raised #{ json['exception']}: #{json['message']}"
         receiver.receive_exception json['exception'], json['message']
       else
-        if method_allowed? json['message']
-          receiver.send json['message'], *json['arguments']
+        if receiver.method_allowed? json['message']
+          receiver.receive_message json['message'], *json['arguments']
         else
-          server.unallowed_method self, json['message'].to_sym
+          receiver.receive_unallowed_message json['message'], *json['arguments']
         end
       end
     end
-    
-    # TODO check specific agent interface 
-    def method_allowed? method
-      ![:exit, :exit!].include? method.to_sym
+
+    def method_missing message, *args, &block
+      send_message message, *args
     end
 
-    def method_missing method, *args, &block
+    def send_message message, *args
       if status == :ready
-        puts "server sending message #{method} with args #{args}"
-        send_object :message => method, :arguments => args
+        puts "server sending message #{message} with args #{args}"
+        send_object :message => message, :arguments => args
       elsif status == :connected
         puts "WARN client not ready"
         EM.add_timer(3) do
@@ -64,7 +61,7 @@ module EMBox
           send(method, *args)
         end
       else
-        puts "NOT sending #{method}"
+        puts "connection status #{status} -> NOT sending #{message}"
       end
     end
 
@@ -72,7 +69,6 @@ module EMBox
       puts 'client closed connection'
       self.status = :closed
       puts get_status
-      EM.stop
     end
 
   end
