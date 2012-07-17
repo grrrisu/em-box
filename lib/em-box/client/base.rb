@@ -7,7 +7,7 @@ module EMBox
     # ServerConnection(IO) <-> Client(Doorkeeper) <-> Agent(think)
     class Base
 
-      attr_reader :agent, :connection
+      attr_reader :agent, :connection, :sandbox
 
       at_exit { $stderr.puts "client exiting..." }
 

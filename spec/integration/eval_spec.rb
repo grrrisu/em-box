@@ -40,4 +40,18 @@ describe "eval" do
     end
   end
 
+  it "should eval code within sandbox" do
+    @agent_on_server.should_receive(:received_message).with('hello world').never
+    @server.stop_after = 1
+
+    lambda {
+      @server.start do |server|
+        server.start_agent(@agent_on_server) do |agent|
+            agent.eval_code_within_sandbox "::Object.new.instance_eval('hello world')"
+        end
+      end
+    }.should raise_error(Exception, "SecurityError: Insecure operation - instance_eval")
+    puts 'end sever start in spec'
+  end
+
 end

@@ -27,11 +27,11 @@ module Example
       def read_env
         ::ENV.inspect
       end
-      
+
       def read_load_path
         $LOAD_PATH
       end
-      
+
       def read_load_path2
         $:
       end
@@ -64,7 +64,7 @@ module Example
         ::Float.class_eval "def to_s; 'har har'; end"
         "#{2.0}"
       end
-      
+
       def pollute_namespace_with_inline_code
         ::Float.instance_eval "def to_s; 'har har'; end"
         "#{2.0}"
@@ -80,11 +80,11 @@ module Example
       end
 
       def connect_with_em
-        EventMachine::run {
-          EventMachine::connect "www.goole.com", 80
+        ::EM.run {
+          ::EM::connect "www.goole.com", 80
         }
       end
-      
+
       def send_evil_method
         exit! # this will be sent to the server
       end

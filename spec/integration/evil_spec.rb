@@ -95,6 +95,12 @@ describe "Evil" do
     execute_method :access_stdin
   end
 
+  it "agent should not be able to access google via EM" do
+    pending
+    @agent_on_server.should_receive(:received_message).with(nil).once
+    execute_method :connect_with_em
+  end
+
   # Don't know how, but just suppose it happened
   describe "evil messages" do
 

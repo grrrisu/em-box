@@ -10,6 +10,11 @@ module Example
         call_start_callback if status == :ready
       end
 
+      def receive_exception exception, message
+        server.stop
+        raise Exception, "#{exception}: #{message}"
+      end
+
       def result result
         puts "result: #{result}"
         received_message result
