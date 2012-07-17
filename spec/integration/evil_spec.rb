@@ -1,19 +1,27 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-describe "Evil" do
+describe "Evil", :focus => true do
+
+  def execute_method method
+    @server.stop_after = 1
+    @server.start do |server|
+      server.start_agent(@agent_on_server) do |agent|
+        agent.connection.send_status 'seal'
+        agent.execute_method method
+      end
+    end
+  end
 
   before :each do
-    @agent_on_server = Example::Evil::Server.new(:agent_class => 'Example::Evil::Agent',
-                        :agent_file  => File.expand_path(File.dirname(__FILE__) + '/../example/evil/agent'))
-    @server = EMBox::Server.new [@agent_on_server]
+    @agent_on_server = Example::Evil::Server.new
+    @agent_on_server.setup(:agent_class => 'Example::Evil::Agent',
+                           :agent_file  => File.expand_path(File.dirname(__FILE__) + '/../example/evil/agent'))
+    @server = Example::TestServer.new
   end
 
   it "server should receive an answer for say hello" do
     @agent_on_server.should_receive(:received_message).with('hello').once
-    @server.start do
-      @agent_on_server.connection.send_status 'seal'
-      @agent_on_server.execute_method :say_hello
-    end
+    execute_method :say_hello
   end
 
   # Testing Process RLimits only work on a Linux box, not on OS X
@@ -22,118 +30,78 @@ describe "Evil" do
 
     it "server should receive an exception if agent tries to eat all cpu time" do
       #@agent_on_server.should_receive(:receive_exception).with('', '')
-      @server.start do
-        @agent_on_server.connection.send_status 'seal'
-        @agent_on_server.execute_method :eat_cpu
-      end
+      execute_method :eat_cpu
     end
 
     it "server should receive an exception if agent tries to eat all cpu time in a subprocess" do
       @agent_on_server.should_receive(:receive_exception).with('SecurityError', "Insecure operation `fork' at level 3")
-      @server.start do
-        @agent_on_server.connection.send_status 'seal'
-        @agent_on_server.execute_method :fork_and_eat
-      end
+      execute_method :fork_and_eat
     end
 
     it "server should receive an exception if agent tries to eat all memory" do
       #@agent_on_server.should_receive(:receive_exception).with('', '')
-      @server.start do
-        @agent_on_server.connection.send_status 'seal'
-        @agent_on_server.execute_method :eat_memory
-      end
+      execute_method :eat_memory
     end
 
   end
 
   it "agent should not be able to read ENV" do
     @agent_on_server.should_receive(:received_message).with("{}").once
-    @server.start do
-      @agent_on_server.connection.send_status 'seal'
-      @agent_on_server.execute_method :read_env
-    end
+    execute_method  :read_env
   end
 
   it "agent should not be able to read the load path" do
     @agent_on_server.should_receive(:received_message).with([]).once
-    @server.start do
-      @agent_on_server.connection.send_status 'seal'
-      @agent_on_server.execute_method :read_load_path
-    end
+    execute_method :read_load_path
   end
-  
+
   it "agent should not be able to read the load path" do
     @agent_on_server.should_receive(:received_message).with([]).once
-    @server.start do
-      @agent_on_server.connection.send_status 'seal'
-      @agent_on_server.execute_method :read_load_path2
-    end
+    execute_method :read_load_path2
   end
-  
+
   it "agent should not be able to require std libraries" do
-    @agent_on_server.should_receive(:receive_exception).with('SecurityError', 'Insecure operation - require')
-      @server.start do
-        @agent_on_server.connection.send_status 'seal'
-        @agent_on_server.execute_method :require_std_lib
-      end
+    lambda { execute_method(:require_std_lib) }.should raise_error(Exception, "SecurityError: Insecure operation - require")
   end
-  
+
   it "agent should not be able to read passwords" do
-    @agent_on_server.should_receive(:receive_exception).with('SecurityError', 'Insecure operation - read')
-    @server.start do
-      @agent_on_server.connection.send_status 'seal'
-      @agent_on_server.execute_method :steal_passwords
-    end
+    lambda { execute_method(:steal_passwords) }.should raise_error(Exception, "SecurityError: Insecure operation - read")
   end
 
   it "agent should not be able to kill the process" do
+    pending
     @agent_on_server.should_not_receive(:exit)
     @agent_on_server.should_receive(:received_message).never
-    @server.start do
-      @agent_on_server.connection.send_status 'seal'
-      @agent_on_server.execute_method :kill_process
-    end
+    execute_method :kill_process
   end
 
   it "agent should not be able to kill the process over send" do
+    pending
     @server.should_receive(:unallowed_method).with(anything,:exit)
     @agent_on_server.should_not_receive(:exit)
     @agent_on_server.should_receive(:received_message).with(anything)
-    @server.start do
-      @agent_on_server.connection.send_status 'seal'
-      @agent_on_server.execute_method :send_evil_stuff
-    end
+    execute_method :send_evil_stuff
   end
 
   it "agent should not be able to get current path" do
     pending
     @agent_on_server.should_receive(:received_message).with(nil).once
-    @server.start do
-      @agent_on_server.connection.send_status 'seal'
-      @agent_on_server.execute_method :me
-    end
+    execute_method :me
   end
 
   it "agent should not be able to pollute namspaces" do
-    @agent_on_server.should_receive(:receive_exception).with('SecurityError', 'Insecure operation - class_eval')
-    @server.start do
-      @agent_on_server.connection.send_status 'seal'
-      @agent_on_server.execute_method :pollute_namespace
-    end
+    lambda { execute_method :pollute_namespace }.should raise_error(Exception, "SecurityError: Insecure operation - class_eval")
   end
 
   it "agent should not be able to access stdin" do
     pending
     @agent_on_server.should_receive(:received_message).with(nil).once
-    @server.start do
-      @agent_on_server.connection.send_status 'seal'
-      @agent_on_server.execute_method :access_stdin
-    end
+    execute_method :access_stdin
   end
-  
+
   # Don't know how, but just suppose they happen
   describe "evil messages" do
-    
+
     it "should ignore message to kill the server process" do
       @server.should_receive(:unallowed_method).with(anything,:exit)
       @agent_on_server.should_not_receive(:exit)
@@ -142,6 +110,5 @@ describe "Evil" do
       end
     end
   end
-  
 
 end
