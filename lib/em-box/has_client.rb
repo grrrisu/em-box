@@ -8,7 +8,7 @@ module EMBox
 
     module InstanceMethods
 
-      attr_accessor :server
+      attr_accessor :server, :start_callback
       attr_reader :agent_class, :agent_file
 
       def setup options
@@ -19,7 +19,7 @@ module EMBox
       # status: connected, ready, running, stopping, closed
       def status_changed status
         # overwrite
-        # eg. server.agent_ready(self) if status == :ready
+        # eg. server.call_start_callback(self) if status == :ready
       end
 
       def receive_exception exception, message
@@ -34,13 +34,17 @@ module EMBox
         raise Exception, "client sent unallowed message #{message}"
       end
 
-      def allowed_message? message
+      def message_allowed? message
         # TODO check specific agent interface
-        ![:exit, :exit!].include? method.to_sym
+        ![:exit, :exit!].include? message.to_sym
       end
 
       def method_missing message, *args, &block
         connection.send_message message, *args
+      end
+
+      def call_start_callback
+        start_callback.call self
       end
 
     end

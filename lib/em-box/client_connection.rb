@@ -3,7 +3,7 @@ module EMBox
   module ClientConnection
     include EventMachine::Protocols::ObjectProtocol
 
-    attr_accessor :receiver, :status, :server
+    attr_accessor :receiver, :status
 
     at_exit { puts "cc server exiting..." }
 
@@ -38,7 +38,7 @@ module EMBox
         puts "client raised #{ json['exception']}: #{json['message']}"
         receiver.receive_exception json['exception'], json['message']
       else
-        if receiver.method_allowed? json['message']
+        if receiver.message_allowed? json['message']
           receiver.receive_message json['message'], *json['arguments']
         else
           receiver.receive_unallowed_message json['message'], *json['arguments']

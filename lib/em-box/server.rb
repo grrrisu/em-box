@@ -22,17 +22,17 @@ module EMBox
       end
     end
 
-    def call_start_callback agent
-      @start_callback.call agent
+    def stop
+      EM.stop
     end
 
     # agent includes HasClient
     def start_agent agent, &block
       em_lib = File.expand_path(File.dirname(__FILE__) + '/../em_box.rb')
       cmd    = "#{@ruby} -rrubygems -rjson -reventmachine -r#{em_lib} -e '#{@client_class}.new(\"#{agent.agent_class}\", \"#{agent.agent_file}\")'"
-      agent.connection = EM.popen(cmd, ClientConnection)
-      agent.server     = self
-      @start_callback  = block if block_given?
+      agent.connection      = EM.popen(cmd, ClientConnection)
+      agent.server          = self
+      agent.start_callback  = block if block_given?
 
       EM::add_timer(2) do
         unless agent.connection.status == :ready
