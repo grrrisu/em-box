@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-describe "Evil", :focus => true do
+describe "Evil" do
 
   def execute_method method
     @server.stop_after = 1
@@ -69,18 +69,14 @@ describe "Evil", :focus => true do
   end
 
   it "agent should not be able to kill the process" do
-    pending
     @agent_on_server.should_not_receive(:exit)
     @agent_on_server.should_receive(:received_message).never
     execute_method :kill_process
   end
 
   it "agent should not be able to kill the process over send" do
-    pending
-    @server.should_receive(:unallowed_method).with(anything,:exit)
     @agent_on_server.should_not_receive(:exit)
-    @agent_on_server.should_receive(:received_message).with(anything)
-    execute_method :send_evil_stuff
+    lambda { execute_method :send_evil_stuff }.should raise_error(Exception, "client sent unallowed message exit")
   end
 
   it "agent should not be able to get current path" do
@@ -99,14 +95,17 @@ describe "Evil", :focus => true do
     execute_method :access_stdin
   end
 
-  # Don't know how, but just suppose they happen
+  # Don't know how, but just suppose it happened
   describe "evil messages" do
 
     it "should ignore message to kill the server process" do
-      @server.should_receive(:unallowed_method).with(anything,:exit)
+      @agent_on_server.should_receive(:receive_unallowed_message).with('exit')
       @agent_on_server.should_not_receive(:exit)
-      @server.start do
-        @agent_on_server.connection.receive_object "message"=>"exit", "arguments"=>[]
+      @server.start do |server|
+        server.start_agent(@agent_on_server) do |agent|
+          agent.connection.receive_object "message"=>"exit", "arguments"=>[]
+          server.stop
+        end
       end
     end
   end

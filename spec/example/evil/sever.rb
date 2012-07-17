@@ -7,7 +7,11 @@ module Example
       delegates_to_client :execute_method
 
       def status_changed status
-        call_start_callback if status == :ready
+        if status == :ready
+          call_start_callback
+        elsif status == :closed
+          server.stop
+        end
       end
 
       def receive_exception exception, message
