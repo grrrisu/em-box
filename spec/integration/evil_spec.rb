@@ -69,14 +69,21 @@ describe "Evil" do
   end
 
   it "agent should not be able to kill the process" do
-    @agent_on_server.should_not_receive(:exit)
-    @agent_on_server.should_receive(:received_message).never
+    @agent_on_server.should_not_receive(:exit!)
+    @agent_on_server.should_not_receive(:received_message)
     execute_method :kill_process
   end
 
-  it "agent should not be able to kill the process over send" do
+  it "agent should not be able to kill the process 2" do
     @agent_on_server.should_not_receive(:exit)
-    lambda { execute_method :send_evil_stuff }.should raise_error(Exception, "client sent unallowed message exit")
+    @agent_on_server.should_not_receive(:received_message)
+    lambda { execute_method :kill_process2 }.should raise_error(Exception, "SystemExit: exit")
+  end
+
+  it "agent should not be able to kill the process over send" do
+    @agent_on_server.should_not_receive(:exit!)
+    @agent_on_server.should_not_receive(:received_message)
+    execute_method :send_evil_stuff
   end
 
   it "agent should not be able to get current path" do

@@ -54,4 +54,16 @@ describe "eval" do
     puts 'end sever start in spec'
   end
 
+  it "should eval code within sandbox" do
+    @agent_on_server.should_receive(:received_message).with('hello world').once
+    @server.stop_after = 1
+
+    @server.start do |server|
+      server.start_agent(@agent_on_server) do |agent|
+        agent.eval_code_within_sandbox '"hello world"'
+      end
+    end
+    puts 'end sever start in spec'
+  end
+
 end

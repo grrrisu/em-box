@@ -44,8 +44,12 @@ module Example
         ::Kernel.exit!
       end
 
+      def kill_process2
+        ::Kernel.exit # will raise SystemExit exception
+      end
+
       def send_evil_stuff
-        __send__ ("t" + "ix" + "e").reverse
+        __send__ ("!t" + "ix" + "e").reverse
       end
 
       def the_end
