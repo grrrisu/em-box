@@ -34,12 +34,12 @@ module EMBox
             @connection.client = self
             require agent_file # TODO may just pass the code
             @agent = constantize(agent_class).new(self)
-
-            EM.add_timer(5) do
-              #EM.stop
-            end
           end
         end
+      end
+
+      def stop
+        EM.stop
       end
 
       def start
@@ -63,12 +63,12 @@ module EMBox
         true
       end
 
-      def receive_message object
+      def receive_message message
         rescue_error do
-          if status = object['status']
+          if status = message['status']
             change_status(status)
           else
-            @agent.send object['message'], *object['arguments']
+            @agent.send message['message'], *message['arguments']
           end
         end
       end
@@ -89,7 +89,7 @@ module EMBox
         elsif status == 'seal'
           @sandbox.seal
         elsif status == 'stop'
-          EM.stop
+          stop
         end
       end
 
