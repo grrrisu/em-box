@@ -12,8 +12,10 @@ module EMBox
     at_exit { puts "server exiting..." }
 
     def initialize options = {}
-      @client_class = options[:client_class] || EMBox::Client::Base
-      @ruby         = options[:ruby] || File.join(RbConfig::CONFIG['bindir'], RbConfig::CONFIG['ruby_install_name'])
+      @client_class          = options[:client_class] || EMBox::Client::Base
+      @ruby                  = options[:ruby] || File.join(RbConfig::CONFIG['bindir'], RbConfig::CONFIG['ruby_install_name'])
+      @client_configuration  = options[:client_configuration]
+      @client_ready_timeout  = options[:client_ready_timeout]
     end
 
     def start &block
@@ -29,14 +31,24 @@ module EMBox
     # agent includes HasClient
     def start_agent agent, &block
       em_lib = File.expand_path(File.dirname(__FILE__) + '/../em_box.rb')
-      cmd    = "#{@ruby} -rrubygems -rjson -reventmachine -r#{em_lib} -e '#{@client_class}.new(\"#{agent.agent_class}\", \"#{agent.agent_file}\")'"
+      libs   = %W{rubygems json eventmachine #{em_lib}}.join(' -r')
+      cmd    = "#{@ruby} -r#{libs}"
+      cmd   += " -e '#{@client_class}.new(\"#{agent.agent_class}\", \"#{agent.agent_file}\""
+      cmd   += ", \"#{@client_configuration}\"" if @client_configuration
+      cmd   += ")'"
       agent.connection      = EM.popen(cmd, ClientConnection)
       agent.server          = self
       agent.start_callback  = block if block_given?
+      stop_client_if_not_ready(agent)
+      agent
+    end
 
-      EM::add_timer(2) do
-        unless agent.connection.status == :ready
-          agent.connection.close_connection
+    def stop_client_if_not_ready agent
+      if @client_ready_timeout
+        EM::add_timer(@client_ready_timeout) do
+          unless agent.connection.status == :ready
+            agent.connection.close_connection
+          end
         end
       end
     end
