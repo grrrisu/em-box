@@ -3,6 +3,8 @@ README
 
 [![Build Status](https://secure.travis-ci.org/grrrisu/em-box.png?branch=master)](http://travis-ci.org/grrrisu/em-box)
 
+[![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/grrrisu/em-box)
+
 Basics
 ------
 
