@@ -3,7 +3,7 @@ GEM
   specs:
     diff-lcs (1.1.2)
     eventmachine (0.12.10)
-    ffi (1.0.11)
+    ffi (1.11.1)
     git (1.2.5)
     growl (1.0.3)
     guard (1.1.1)
